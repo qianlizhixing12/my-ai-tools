@@ -1,66 +1,143 @@
 # my-ai-tools
 
-- 个人ai工具(包括不限于skill mcp等)
-- 工具本身大多由ai自动生成
+个人 AI 工具集，包含 Codex 技能 (Skill) 和 MCP 服务器。
 
-## 参考
-
-- https://jspang.com/article/39
+工具主要由 AI 辅助生成，持续迭代中。
 
 ## 目录结构
 
 ```
 ai-tools/
-├── AGENTS.md                 # 用户行为准则文件
-├── mcp/weread/               # MCP Server — 微信读书 API 桥接（自动加载）
-│   ├── server.py             # MCP 入口，注册 13 个 weread_* 工具
-│   ├── weread_client.py      # WeRead Agent API Gateway 客户端
-│   ├── requirements.txt      # Python 依赖
-│   ├── .env                  # WEREAD_API_KEY（MCP server 自动读取）
-│   ├── .env.example          # 环境变量模板
-│   ├── README.md             # 使用说明
-│   └── .venv/                # Python 虚拟环境
-└── skills/weread/            # Skill — 阅读数据获取
-    ├── SKILL.md              # 技能定义：最新一周 / 本周 / 所有时期阅读统计
-    └── readdata.md           # 阅读统计字段参考
+├── AGENTS.md                     # Codex 全局规则
+├── README.md                     # 本文件
+├── skills/                       # Codex Skill 定义
+│   ├── weread/                   # 微信读书阅读数据
+│   │   ├── SKILL.md
+│   │   └── readdata.md
+│   └── hugo-blog-publish/        # Hugo 博文 → 微信公众号发布
+│       ├── SKILL.md
+│       ├── scripts/              # 转换脚本 (publish.py, converter.py)
+│       └── assets/               # 默认封面图
+└── mcp/                          # MCP Server 实现
+    ├── weread/                   # 微信读书 API 桥接
+    │   ├── server.py
+    │   ├── weread_client.py
+    │   ├── requirements.txt
+    │   ├── .env / .env.example
+    │   └── README.md
+    └── wechat_oa/                # 微信公众号 API 桥接
+        ├── server.py
+        ├── wechat_client.py
+        ├── wechat-api-notes.md
+        ├── requirements.txt
+        ├── .env / .env.example
+        └── README.md
 ```
 
-## 使用(加入codex全局)
+## 安装
 
-- AGENTS.md `ln -s $PWD/AGENTS.md $HOME/.codex/AGENTS.md`
-- skill(weread为例) `$ ln -s $PWD/skills/weread $HOME/.codex/skills/weread`
-- mcp(weread为例) `codex mcp add weread $PWD/mcp/weread/.venv/bin/python $PWD/mcp/weread/server.py`
+MCP 服务器和 Skill 通过软链接注册到 Codex：
 
-## 架构说明
+```bash
+# Skill
+ln -sf $PWD/skills/weread $HOME/.codex/skills/weread
+ln -sf $PWD/skills/hugo-blog-publish $HOME/.codex/skills/hugo-blog-publish
 
-- **MCP 层**（`mcp/weread`）：将微信读书 Agent API Gateway 封装为标准 MCP 工具。
-  配置在 `~/.codex/config.*` 中，由 Codex 自动管理启动和连接，
-  工具直接暴露为可调用函数（`mcp__weread__weread_*`）。
-  包含搜索、书架、书籍信息、阅读统计、笔记划线、点评、推荐等全部接口。
-- **Skill 层**（`skills/weread`）：基于 MCP 工具，聚焦阅读数据获取场景。
-  通过 `weread_get_reading_stats` 工具查询最新一周 / 本周 / 所有时期的阅读统计。
+# MCP
+codex mcp add weread $PWD/mcp/weread/.venv/bin/python $PWD/mcp/weread/server.py
+codex mcp add wechat_oa $PWD/mcp/wechat_oa/.venv/bin/python $PWD/mcp/wechat_oa/server.py
 
-## 工具列表
+# 全局规则
+ln -sf $PWD/AGENTS.md $HOME/.codex/AGENTS.md
+```
 
-MCP server 启动后，以下工具自动挂载为可调用函数：
+首次使用需创建 `.env` 并安装依赖，详见各 MCP 目录下的 README。
 
-- `mcp__weread__weread_search` — 搜索书籍/作者/文章
-- `mcp__weread__weread_get_shelf` — 书架列表
-- `mcp__weread__weread_get_book_info` — 书籍信息
-- `mcp__weread__weread_get_chapters` — 章节目录
-- `mcp__weread__weread_get_reading_progress` — 阅读进度
-- `mcp__weread__weread_get_reading_stats` — 阅读统计（skill 核心依赖）
-- `mcp__weread__weread_list_notebooks` — 笔记概览
-- `mcp__weread__weread_get_bookmarks` — 划线内容
-- `mcp__weread__weread_get_best_bookmarks` — 热门划线
-- `mcp__weread__weread_get_my_reviews` — 个人想法
-- `mcp__weread__weread_get_reviews` — 公开点评
-- `mcp__weread__weread_get_recommend` — 个性化推荐
-- `mcp__weread__weread_gateway_call` — 通用网关调用
+## 技能 (Skills)
 
-## 使用方式
+### weread — 微信读书阅读数据
 
-MCP server 由 Codex 自动管理，无需手动启动。
-直接调用对应的 `mcp__weread__weread_*` 函数即可。
+获取微信读书阅读统计：本周、上周、本月、本年、总计。
 
-技能使用参考 `skills/weread/SKILL.md`。
+| 能力 | 说明 |
+|------|------|
+| 本周阅读 | 当前自然周的阅读时长、天数、排行 |
+| 上周阅读 | 上一完整周的阅读统计，支持环比 |
+| 月度/年度/总计 | 更长周期的聚合数据 |
+
+依赖 MCP：`weread`
+
+### hugo-blog-publish — Hugo 博文发布
+
+将 Hugo Markdown 博文发布到 GitHub 并同步至微信公众号草稿箱。
+
+| 步骤 | 说明 |
+|------|------|
+| Git 提交推送 | 自动判断新增/修改，提交并推送 |
+| Markdown 转换 | 转微信公众号兼容 HTML（inline style） |
+| 图片上传 | 文章图片 + 封面图 → 微信服务器 |
+| 创建草稿 | 含固定作者/原创/推荐/赞赏设置 |
+| 手动发布 | 后台确认原创、合集后发布 |
+
+依赖 MCP：`wechat_oa`
+
+## MCP 服务器
+
+### weread — 微信读书 API
+
+13 个工具，覆盖搜索、书架、书籍信息、阅读统计、笔记划线、点评、推荐。
+
+| 工具 | 说明 |
+|------|------|
+| `weread_search` | 搜索书籍/作者/文章 |
+| `weread_get_shelf` | 获取书架列表 |
+| `weread_get_book_info` | 书籍详细信息 |
+| `weread_get_chapters` | 章节目录 |
+| `weread_get_reading_progress` | 阅读进度 |
+| `weread_get_reading_stats` | 阅读统计（Skill 核心依赖） |
+| `weread_list_notebooks` | 笔记概览 |
+| `weread_get_bookmarks` | 划线内容 |
+| `weread_get_best_bookmarks` | 热门划线 |
+| `weread_get_my_reviews` | 个人想法/点评 |
+| `weread_get_reviews` | 公开点评 |
+| `weread_get_recommend` | 个性化推荐 |
+| `weread_gateway_call` | 通用网关调用（兜底） |
+
+### wechat_oa — 微信公众号 API
+
+8 个工具，覆盖图片上传、草稿管理、发布、权限诊断。
+
+| 工具 | 说明 |
+|------|------|
+| `wechat_oa_get_access_token` | 获取 access_token（自动缓存） |
+| `wechat_oa_upload_article_image` | 上传文章图片 → mmbiz.qpic.cn URL |
+| `wechat_oa_upload_cover_image` | 上传封面图 → media_id |
+| `wechat_oa_create_draft` | 创建草稿到草稿箱 |
+| `wechat_oa_delete_draft` | 删除草稿 |
+| `wechat_oa_publish_draft` | 发布草稿（个人号通常 48001） |
+| `wechat_oa_check_permissions` | 诊断 API 权限 |
+| `wechat_oa_check_ip` | 获取当前外网 IPv4 地址 |
+
+个人订阅号限制：自动发布、合集 API 不可用（errcode 48001），需后台手动操作。
+
+## 架构
+
+```
+Skill (SKILL.md)
+  → 描述工作流和调用 MCP 工具
+  → 不包含 MCP 安装/运行时细节
+
+MCP Server (server.py + *_client.py)
+  → 封装外部 API 为标准 MCP 工具
+  → 由 Codex 自动管理生命周期
+  → README.md 包含安装配置指南
+
+scripts/ (.venv + requirements.txt)
+  → 辅助脚本（转换、解析等）
+  → 不直接调用外部 API，由 MCP 工具代理
+```
+
+## 参考
+
+- https://jspang.com/article/39
+- [Model Context Protocol](https://modelcontextprotocol.io/)
