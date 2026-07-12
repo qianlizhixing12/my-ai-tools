@@ -34,3 +34,14 @@
 - 不要把用户个人信息、真实订单、真实客户名单或内部业务数据写入演示页面。需要数据时使用模拟数据。
 - 引入外部 CDN 或第三方资源前，要考虑可用性和隐私影响；不要加入未知来源脚本。
 - 不执行破坏性命令，例如 `git reset --hard`、批量删除、清空目录，除非用户明确要求并确认目标路径。
+
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
+<!-- CODEGRAPH_END -->
