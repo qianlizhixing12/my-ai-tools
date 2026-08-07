@@ -18,7 +18,7 @@ class WeReadClient:
                 "WEREAD_API_KEY 未设置。请通过环境变量 WEREAD_API_KEY 设置，"
                 "或创建 .env 文件写入 WEREAD_API_KEY=wrk-xxxx"
             )
-        self._version = "1.0.3"
+        self._version = "1.0.4"
 
     def call(self, api_name: str, **kwargs: Any) -> dict[str, Any]:
         """调用 WeRead Gateway API。

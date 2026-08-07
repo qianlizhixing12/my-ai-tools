@@ -22,12 +22,14 @@ ai-tools/
     ├── weread/                   # 微信读书 API 桥接
     │   ├── server.py
     │   ├── weread_client.py
+    │   ├── pyproject.toml / uv.lock
     │   ├── requirements.txt
     │   ├── .env / .env.example
     │   └── README.md
     └── wechat_oa/                # 微信公众号 API 桥接
         ├── server.py
         ├── wechat_client.py
+        ├── pyproject.toml / uv.lock
         ├── wechat-api-notes.md
         ├── requirements.txt
         ├── .env / .env.example
@@ -35,6 +37,8 @@ ai-tools/
 ```
 
 ## 安装
+
+每个MCP项目均支持uv和Python原生venv。推荐进入对应目录执行`uv sync`；也可执行`python3 -m venv .venv`和`.venv/bin/python -m pip install -r requirements.txt`。两种方式都将环境放在`.venv`，以下注册命令通用。
 
 MCP 服务器和 Skill 通过软链接注册到 Codex：
 

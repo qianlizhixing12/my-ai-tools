@@ -14,7 +14,7 @@ import os
 import sys
 from typing import Any
 
-from mcp.server import FastMCP
+from mcp.server import MCPServer
 from dotenv import load_dotenv
 
 from weread_client import WeReadClient
@@ -31,7 +31,7 @@ if not api_key:
 
 client = WeReadClient(api_key=api_key)
 
-mcp = FastMCP(
+mcp = MCPServer(
     "WeRead",
     instructions="微信读书 (WeRead) API 桥接 — 搜索书籍、管理书架、查看笔记划线、浏览书评、阅读统计、发现推荐好书",
 )

@@ -10,9 +10,19 @@
 cd ai-tools/mcp/wechat_oa
 cp .env.example .env
 # 编辑 .env 填入真实的 WECHAT_APPID 和 WECHAT_APPSECRET
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+uv sync
 ```
+
+uv会根据`.python-version`使用Python 3.14.7，避免自动选择预发布解释器。
+
+如不使用uv，也可以通过Python原生venv安装：
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+两种方式都会使用项目内的`.venv`，Codex MCP配置和启动命令可以保持一致。
 
 凭据获取：https://mp.weixin.qq.com → 设置与开发 → 基本配置。
 
@@ -48,11 +58,11 @@ python3 -m venv .venv
 ## 开发
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python server.py
+uv sync
+uv run python server.py
 ```
+
+使用原生venv时可运行`.venv/bin/python server.py`。如果已执行`source .venv/bin/activate`，也可直接运行`python server.py`。
 
 ## 依赖
 

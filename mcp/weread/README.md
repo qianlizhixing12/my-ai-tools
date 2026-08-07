@@ -7,15 +7,32 @@
 
 ## 配置
 
+先安装依赖。推荐使用uv：
+
+```bash
+uv sync
+```
+
+uv会根据`.python-version`使用Python 3.14.7，避免自动选择预发布解释器。
+
+也可以使用Python原生venv：
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+两种方式都会使用项目内的`.venv`，以下命令无需激活虚拟环境。
+
 ```bash
 # 方式一：环境变量
 export WEREAD_API_KEY=wrk-xxxx
-python server.py
+.venv/bin/python server.py
 
 # 方式二：.env 文件
 cp .env.example .env
 # 编辑 .env 填入你的 API Key
-python server.py
+.venv/bin/python server.py
 ```
 
 ## 暴露的 MCP 工具
@@ -39,11 +56,11 @@ python server.py
 ## 开发
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python server.py
+uv sync
+uv run python server.py
 ```
+
+使用原生venv时可运行`.venv/bin/python server.py`。如果已执行`source .venv/bin/activate`，也可直接运行`python server.py`。
 
 ## 依赖
 

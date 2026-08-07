@@ -17,7 +17,7 @@ import sys
 import json
 from pathlib import Path
 
-from mcp.server import FastMCP
+from mcp.server import MCPServer
 from dotenv import load_dotenv
 
 from wechat_client import WeChatAPI
@@ -35,7 +35,7 @@ if not appid or not appsecret:
 
 client = WeChatAPI(appid=appid, appsecret=appsecret)
 
-mcp = FastMCP(
+mcp = MCPServer(
     "WeChatOA",
     instructions="微信公众号 (WeChat Official Account) API 桥接 — "
     "上传图片、创建草稿、发布文章、检查权限。",
